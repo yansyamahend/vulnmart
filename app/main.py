@@ -27,8 +27,6 @@ from app.routes.password_reset import router as password_reset_router
 from app.routes.crew import router as crew_router
 from app.routes.transactions import router as transactions_router
 from app.models.h5_challenge import H5Challenge
-from app.routes.h5 import router as h5_router
-from app.models.h5_challenge import H5Challenge
 from app.routes.accounts import router as accounts_router
 
 
@@ -58,7 +56,6 @@ app.include_router(admin_router)
 app.include_router(password_reset_router)
 app.include_router(crew_router)
 app.include_router(transactions_router)
-app.include_router(h5_router)
 app.include_router(accounts_router)
 
 

@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,17 @@ from app.models.user import User
 router = APIRouter(
     prefix="/api/accounts",
     tags=["Accounts"],
+)
+
+
+TARGET_USERNAME = os.getenv(
+    "H5_TARGET_USERNAME",
+    "victim",
+)
+
+TARGET_EMAIL = os.getenv(
+    "H5_TARGET_EMAIL",
+    "victim@vulnmart.local",
 )
 
 
@@ -24,9 +37,9 @@ SUSPENDED_ACCOUNTS = [
         "produk": "Mechanical keyboard",
     },
     {
-        "username": "victim",
-        "email": "victim@vulnmart.local",
-        "produk": "Login menggunakan akun victim untuk melihat produk",
+        "username": TARGET_USERNAME,
+        "email": TARGET_EMAIL,
+        "produk": "Login menggunakan akun ini untuk melihat produk",
     },
     {
         "username": "demo_user",
@@ -41,24 +54,31 @@ def get_suspended_accounts(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    accounts = [
+        account.copy()
+        for account in SUSPENDED_ACCOUNTS
+    ]
+
     challenge = (
         db.query(H5Challenge)
-        .filter(H5Challenge.user_id == current_user.id)
+        .filter(
+            H5Challenge.user_id == current_user.id
+        )
         .first()
     )
 
-    accounts = [account.copy() for account in SUSPENDED_ACCOUNTS]
-
-    # H5 flag is shown only when the current logged-in
-    # user is the target account and the legacy V1 reset
-    # challenge has been completed.
+    # Flag hanya ditampilkan ketika:
+    # 1. User yang login adalah target account.
+    # 2. Target account sudah menyelesaikan H5 melalui
+    #    legacy password reset V1.
     if (
-        current_user.username == "victim"
+        current_user.username == TARGET_USERNAME
         and challenge is not None
         and challenge.completed
     ):
         for account in accounts:
-            if account["username"] == "victim":
+            if account["username"] == TARGET_USERNAME:
                 account["produk"] = challenge.flag
+                break
 
     return accounts

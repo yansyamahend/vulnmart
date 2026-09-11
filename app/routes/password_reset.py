@@ -1,3 +1,4 @@
+import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -18,7 +19,15 @@ router = APIRouter(
 )
 
 
-H5_FLAG = "flag{vulnmart_legacy_api_reset_583721}"
+TARGET_USERNAME = os.getenv(
+    "H5_TARGET_USERNAME",
+    "victim",
+)
+
+H5_FLAG = os.getenv(
+    "H5_FLAG",
+    "flag{vulnmart_legacy_api_reset_583721}",
+)
 
 
 def create_reset_token(
@@ -30,7 +39,8 @@ def create_reset_token(
     reset = PasswordReset(
         user_id=user.id,
         token=token,
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=15),
+        expires_at=datetime.now(timezone.utc)
+        + timedelta(minutes=15),
     )
 
     db.add(reset)
@@ -61,7 +71,10 @@ def forgot_password_v3(
         create_reset_token(user, db)
 
     return {
-        "message": "If the account exists, reset instructions have been sent.",
+        "message": (
+            "If the account exists, reset instructions "
+            "have been sent."
+        ),
     }
 
 
@@ -75,7 +88,9 @@ def reset_password_v3(
 ):
     reset = (
         db.query(PasswordReset)
-        .filter(PasswordReset.token == data.token)
+        .filter(
+            PasswordReset.token == data.token
+        )
         .first()
     )
 
@@ -87,7 +102,12 @@ def reset_password_v3(
 
     now = datetime.now(timezone.utc)
 
-    if reset.expires_at.replace(tzinfo=timezone.utc) < now:
+    if (
+        reset.expires_at.replace(
+            tzinfo=timezone.utc
+        )
+        < now
+    ):
         raise HTTPException(
             status_code=400,
             detail="Reset token expired",
@@ -106,23 +126,6 @@ def reset_password_v3(
         )
 
     user.password = data.new_password
-
-    if user.username == "victim":
-    challenge = (
-        db.query(H5Challenge)
-        .filter(H5Challenge.user_id == user.id)
-        .first()
-    )
-
-    if challenge is None:
-        challenge = H5Challenge(
-            user_id=user.id,
-            completed=True,
-            flag="flag{vulnmart_legacy_api_reset_583721}",
-        )
-        db.add(challenge)
-    else:
-        challenge.completed = True
 
     db.delete(reset)
     db.commit()
@@ -181,7 +184,9 @@ def reset_password_v1(
 ):
     reset = (
         db.query(PasswordReset)
-        .filter(PasswordReset.token == data.token)
+        .filter(
+            PasswordReset.token == data.token
+        )
         .first()
     )
 
@@ -193,7 +198,12 @@ def reset_password_v1(
 
     now = datetime.now(timezone.utc)
 
-    if reset.expires_at.replace(tzinfo=timezone.utc) < now:
+    if (
+        reset.expires_at.replace(
+            tzinfo=timezone.utc
+        )
+        < now
+    ):
         raise HTTPException(
             status_code=400,
             detail="Reset token expired",
@@ -213,12 +223,19 @@ def reset_password_v1(
 
     user.password = data.new_password
 
-    # H5 completion is triggered ONLY by the legacy V1
-    # password reset flow against the victim account.
-    if user.username == "victim":
+    # ========================================================
+    # H5 COMPLETION
+    #
+    # H5 hanya dianggap selesai apabila target account
+    # berhasil di-reset melalui legacy API V1.
+    # ========================================================
+
+    if user.username == TARGET_USERNAME:
         challenge = (
             db.query(H5Challenge)
-            .filter(H5Challenge.user_id == user.id)
+            .filter(
+                H5Challenge.user_id == user.id
+            )
             .first()
         )
 
@@ -231,6 +248,7 @@ def reset_password_v1(
             db.add(challenge)
         else:
             challenge.completed = True
+            challenge.flag = H5_FLAG
 
     db.delete(reset)
     db.commit()
