@@ -1,0 +1,141 @@
+{% extends "base.html" %} {% block title %} VulnMart - Profile {% endblock %} {%
+block content %}
+
+<section class="auth-container">
+  <div class="auth-card">
+    <h1>My Profile</h1>
+    <p class="auth-subtitle">Manage your VulnMart account</p>
+
+    <form id="profile-form">
+      <label for="username"> Username </label>
+
+      <input type="text" id="username" disabled />
+
+      <label for="email"> Email </label>
+
+      <input type="email" id="email" disabled />
+
+      <label for="full-name"> Full Name </label>
+
+      <input type="text" id="full-name" required />
+
+      <label> Wallet </label>
+
+      <div id="wallets"></div>
+
+      <label for="role"> Role </label>
+
+      <input type="text" id="role" disabled />
+
+      <label for="bio"> Bio </label>
+
+      <textarea
+        id="bio"
+        rows="5"
+        placeholder="Tell us about yourself"
+      ></textarea>
+
+      <button type="submit">Save Changes</button>
+
+      <p id="profile-message"></p>
+    </form>
+  </div>
+</section>
+
+<script>
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadProfile() {
+    try {
+      const response = await fetch("/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        localStorage.removeItem("access_token");
+        window.location.href = "/login";
+        return;
+      }
+
+      const user = await response.json();
+
+      document.getElementById("username").value = user.username;
+
+      document.getElementById("email").value = user.email;
+
+      document.getElementById("full-name").value = user.full_name;
+
+      document.getElementById("role").value = user.role;
+
+      document.getElementById("bio").value = user.bio ?? "";
+      const walletsContainer = document.getElementById("wallets");
+
+      walletsContainer.innerHTML = user.wallets
+        .map(
+          (wallet) => `
+    <div>
+        <strong>${wallet.currency}</strong>:
+        ${wallet.balance.toLocaleString("id-ID")}
+    </div>
+`,
+        )
+        .join("");
+    } catch (error) {
+      console.error(error);
+
+      document.getElementById("profile-message").textContent =
+        "Unable to load profile.";
+    }
+  }
+
+  document
+    .getElementById("profile-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const fullName = document.getElementById("full-name").value;
+
+      const bio = document.getElementById("bio").value;
+
+      const message = document.getElementById("profile-message");
+
+      try {
+        const response = await fetch("/api/users/me", {
+          method: "PUT",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            full_name: fullName,
+            bio: bio,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          message.textContent = data.detail || "Failed to update profile.";
+          return;
+        }
+
+        message.textContent = "Profile updated successfully.";
+      } catch (error) {
+        console.error(error);
+
+        message.textContent = "Unable to connect to server.";
+      }
+    });
+
+  loadProfile();
+</script>
+
+{% endblock %}

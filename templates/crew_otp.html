@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>CrewPanel - OTP</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/style.css') }}"
+    />
+  </head>
+
+  <body>
+    <main class="container">
+      <section class="auth-container">
+        <div class="auth-card">
+          <h1>OTP Verification</h1>
+
+          <p class="auth-subtitle">Enter the OTP generated for your account.</p>
+
+          <form id="otp-form">
+            <label for="otp"> OTP </label>
+
+            <input
+              type="text"
+              id="otp"
+              inputmode="numeric"
+              maxlength="6"
+              required
+            />
+
+            <button type="submit">Verify OTP</button>
+
+            <p id="message"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const username = sessionStorage.getItem("crew_username");
+
+      const form = document.getElementById("otp-form");
+
+      const message = document.getElementById("message");
+
+      if (!username) {
+        window.location.href = "/CrewPanel";
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const otp = document.getElementById("otp").value;
+
+        const response = await fetch("/api/crew/verify-otp", {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            username: username,
+            otp: otp,
+          }),
+        });
+
+        if (response.redirected) {
+          sessionStorage.removeItem("crew_username");
+
+          window.location.href = response.url;
+
+          return;
+        }
+
+        const data = await response.json();
+
+        message.textContent = data.message || "Verification failed.";
+      });
+    </script>
+  </body>
+</html>

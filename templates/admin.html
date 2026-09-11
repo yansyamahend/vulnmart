@@ -1,0 +1,182 @@
+{% extends "base.html" %} {% block title %} VulnMart - Admin Dashboard {%
+endblock %} {% block content %}
+
+<section class="products-section">
+  <h1>Admin Dashboard</h1>
+
+  <!-- Admin Flag -->
+  <div class="admin-flag">
+    <div class="admin-flag-header">
+      <div class="admin-flag-icon">✓</div>
+
+      <div>
+        <span class="admin-flag-label">Admin Access</span>
+        <p>Restricted information available to administrators</p>
+      </div>
+    </div>
+
+    <div class="admin-flag-value">
+      <span class="admin-flag-prefix">FLAG</span>
+      <code>flag{4dmin_4dm!nn_y0www_28198193}</code>
+    </div>
+  </div>
+
+  <div id="users-container">Loading users...</div>
+</section>
+
+<style>
+  .admin-flag {
+    margin: 24px 0 28px;
+    padding: 18px;
+    border: 1px solid #dcefe3;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f7fcf8 0%, #f3faf5 100%);
+    box-shadow: 0 4px 14px rgba(30, 120, 65, 0.05);
+  }
+
+  .admin-flag-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .admin-flag-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.1);
+  }
+
+  .admin-flag-label {
+    display: block;
+    color: #176b38;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .admin-flag-header p {
+    margin: 3px 0 0;
+    color: #718078;
+    font-size: 13px;
+  }
+
+  .admin-flag-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid #d8e9dc;
+    border-radius: 9px;
+    background: #ffffff;
+  }
+
+  .admin-flag-prefix {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 7px;
+    border-radius: 6px;
+    background: #eaf7ee;
+    color: #188542;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .admin-flag-value code {
+    color: #29633e;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    word-break: break-all;
+  }
+
+  @media (max-width: 600px) {
+    .admin-flag {
+      padding: 15px;
+    }
+
+    .admin-flag-value {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+</style>
+
+<script>
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadUsers() {
+    const container = document.getElementById("users-container");
+
+    const response = await fetch("/api/admin/users", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      container.innerHTML = `
+            <div class="auth-card">
+                <h2>Access denied</h2>
+                <p>${data.detail}</p>
+            </div>
+        `;
+      return;
+    }
+
+    container.innerHTML = `
+        <div class="product-grid">
+            ${data
+              .map(
+                (user) => `
+                <div class="product-card">
+                    <h3>${user.username}</h3>
+
+                    <p>
+                        ${user.full_name}
+                    </p>
+
+                    <p>
+                        Role: ${user.role}
+                    </p>
+
+                    <button
+                        onclick="viewUser(${user.id})"
+                    >
+                        View User
+                    </button>
+                </div>
+            `,
+              )
+              .join("")}
+        </div>
+    `;
+  }
+
+  function viewUser(userId) {
+    window.location.href = `/admin/users/${userId}`;
+  }
+
+  loadUsers();
+</script>
+
+{% endblock %}

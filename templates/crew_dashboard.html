@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Crew Dashboard</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/style.css') }}"
+    />
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #f6f7f9;
+        color: #17191c;
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      .container {
+        width: min(1100px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 64px 0;
+      }
+
+      .products-section {
+        background: #ffffff;
+        border: 1px solid #e7e9ec;
+        border-radius: 18px;
+        padding: 32px;
+        box-shadow:
+          0 8px 30px rgba(0, 0, 0, 0.035),
+          0 1px 3px rgba(0, 0, 0, 0.025);
+      }
+
+      /* Header */
+      .crew-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid #eceef1;
+      }
+
+      .crew-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+      }
+
+      .crew-header h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      .crew-header p {
+        margin: 9px 0 0;
+        color: #717780;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      /* Logout */
+      .logout {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid #e0e3e7;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #454a51;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          color 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .logout:hover {
+        background: #f8f9fa;
+        border-color: #d5d9de;
+        color: #17191c;
+        transform: translateY(-1px);
+      }
+
+      /* Table */
+      .crew-table-wrapper {
+        margin-top: 28px;
+        overflow-x: auto;
+        border: 1px solid #e7e9ec;
+        border-radius: 12px;
+      }
+
+      .crew-table {
+        width: 100%;
+        min-width: 700px;
+        border-collapse: collapse;
+        background: #ffffff;
+      }
+
+      .crew-table th,
+      .crew-table td {
+        padding: 16px 18px;
+        text-align: left;
+      }
+
+      .crew-table th {
+        background: #fafbfc;
+        color: #7b8189;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e7e9ec;
+      }
+
+      .crew-table td {
+        font-size: 14px;
+        color: #454a51;
+        border-bottom: 1px solid #f0f1f3;
+        vertical-align: middle;
+      }
+
+      .crew-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .crew-table tbody tr {
+        transition: background 0.15s ease;
+      }
+
+      .crew-table tbody tr:hover {
+        background: #fafbfc;
+      }
+
+      .crew-table td:first-child {
+        color: #17191c;
+        font-weight: 600;
+      }
+
+      .crew-table td:nth-child(2) {
+        width: 190px;
+        color: #555b63;
+        font-weight: 500;
+      }
+
+      /* Flag Found Row */
+      .flag-row {
+        background: #f5fbf7;
+      }
+
+      .flag-row:hover {
+        background: #eff9f2 !important;
+      }
+
+      .flag-row td:first-child {
+        position: relative;
+      }
+
+      .flag-row td:first-child::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 3px;
+        height: 22px;
+        transform: translateY(-50%);
+        background: #22c55e;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .flag-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+      }
+
+      .flag-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        padding: 5px 9px;
+        border: 1px solid #bbebca;
+        border-radius: 999px;
+        background: #eaf8ee;
+        color: #188542;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
+      .flag-check {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #22c55e;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .flag-value {
+        display: block;
+        max-width: 100%;
+        padding: 9px 11px;
+        border: 1px solid #dcefe1;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #267044;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        word-break: break-all;
+      }
+
+      /* Regular role */
+      .role {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 9px;
+        border: 1px solid #e5e7ea;
+        border-radius: 7px;
+        background: #f8f9fa;
+        color: #565c64;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      /* Responsive */
+      @media (max-width: 700px) {
+        .container {
+          width: min(100% - 24px, 1100px);
+          padding: 24px 0;
+        }
+
+        .products-section {
+          padding: 20px;
+          border-radius: 14px;
+        }
+
+        .crew-header {
+          align-items: flex-start;
+        }
+
+        .crew-header h1 {
+          font-size: 24px;
+        }
+
+        .logout {
+          flex-shrink: 0;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .crew-header {
+          flex-direction: column;
+        }
+
+        .logout {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="container">
+      <section class="products-section">
+        <header class="crew-header">
+          <div>
+            <div class="crew-title">
+              <span class="status-dot"></span>
+              <h1>Crew Dashboard</h1>
+            </div>
+
+            <p>Internal crew management panel</p>
+          </div>
+
+          <a href="/api/crew/logout" class="logout"> Logout </a>
+        </header>
+
+        <div class="crew-table-wrapper">
+          <table class="crew-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Bio</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <!-- FLAG FOUND -->
+              <tr class="flag-row">
+                <td>Mahendd</td>
+
+                <td>
+                  <span class="role">Cracker</span>
+                </td>
+
+                <td>
+                  <div class="flag-content">
+                    <span class="flag-badge">
+                      <span class="flag-check">✓</span>
+                    </span>
+
+                    <span class="flag-value">
+                      flag{4nj6yy_1n!_tuhhh_m1lik_Cr3ww_27198327}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>Djembara</td>
+
+                <td>
+                  <span class="role">Bug Bounty Hunter</span>
+                </td>
+
+                <td>Full Stack Developer</td>
+              </tr>
+
+              <tr>
+                <td>Havidz</td>
+
+                <td>
+                  <span class="role">Network Engineer</span>
+                </td>
+
+                <td>Informatics Engineering</td>
+              </tr>
+
+              <tr>
+                <td>Zulfazli</td>
+
+                <td>
+                  <span class="role">Web Pentester</span>
+                </td>
+
+                <td>Informatics Engineering</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block title %} VulnMart - Login {% endblock %} {%
+block content %}
+
+<section class="auth-container">
+  <div class="auth-card">
+    <h1>Login</h1>
+    <p class="auth-subtitle">Sign in to your VulnMart account</p>
+
+    <form id="login-form">
+      <label for="username">Username</label>
+
+      <input type="text" id="username" placeholder="Enter username" required />
+
+      <label for="password">Password</label>
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter password"
+        required
+      />
+
+      <button type="submit">Login</button>
+
+      <p id="login-message"></p>
+    </form>
+
+    <p class="forgot">
+      <a href="/register">Create an account</a>
+    </p>
+
+    <p class="forgot">
+      <a href="/forgot-password">Forgot Password?</a>
+    </p>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById("login-form");
+  const message = document.getElementById("login-message");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.detail || "Login failed";
+        return;
+      }
+
+      localStorage.setItem("access_token", data.access_token);
+
+      if (data.user.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/profile";
+      }
+    } catch (error) {
+      console.error(error);
+
+      message.textContent = "Unable to connect to server";
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %} {% block title %} VulnMart - Order {% endblock %} {%
+block content %}
+
+<section class="auth-container">
+  <div class="auth-card" id="order-container" data-order-id="{{ order_id }}">
+    Loading order...
+  </div>
+</section>
+
+<script>
+  const container = document.getElementById("order-container");
+
+  const orderId = container.dataset.orderId;
+
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadOrder() {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        container.innerHTML = `
+                <h1>Unable to access order</h1>
+                <p>${data.detail}</p>
+            `;
+
+        return;
+      }
+
+      const itemsHTML = data.items
+        .map(
+          (item) => `
+
+                <div
+                    class="product-card"
+                    style="margin-top: 12px;"
+                >
+
+                    <h3>
+                        ${item.product_name}
+                    </h3>
+
+                    <p>
+                        Quantity:
+                        ${item.quantity}
+                    </p>
+
+                    <p>
+                        Price:
+                        Rp${item.price.toLocaleString("id-ID")}
+                    </p>
+
+                </div>
+
+            `,
+        )
+        .join("");
+
+      const flagHTML = data.challenge_flag
+        ? `
+        <p style="
+            margin-top: 20px;
+            padding: 10px 12px;
+            border-left: 4px solid #198754;
+            background: #f0f8f3;
+            color: #198754;
+            font-family: monospace;
+            border-radius: 4px;
+        ">
+            ${data.challenge_flag}
+        </p>
+    `
+        : "";
+
+      container.innerHTML = `
+
+            <h1>
+                Order #${data.id}
+            </h1>
+
+            <p>
+                <strong>Status:</strong>
+                ${data.status}
+            </p>
+
+            <p>
+                <strong>Total:</strong>
+                Rp${data.total_amount.toLocaleString("id-ID")}
+            </p>
+
+            <hr
+                style="margin: 20px 0;"
+            >
+
+            <h2>
+                Items
+            </h2>
+
+            ${itemsHTML}
+
+            ${flagHTML}
+
+        `;
+    } catch (error) {
+      console.error(error);
+
+      container.innerHTML = `
+            <p>
+                Unable to connect to server.
+            </p>
+        `;
+    }
+  }
+
+  loadOrder();
+</script>
+
+{% endblock %}

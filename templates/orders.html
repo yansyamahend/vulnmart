@@ -1,0 +1,211 @@
+{% extends "base.html" %} {% block title %} VulnMart - Orders {% endblock %} {%
+block content %}
+
+<section class="products-section">
+  <div class="section-header">
+    <h1>My Orders</h1>
+
+    <a href="/products"> Continue Shopping </a>
+  </div>
+
+  <div id="orders-container">Loading orders...</div>
+</section>
+
+<script>
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadOrders() {
+    const container = document.getElementById("orders-container");
+
+    try {
+      // ====================================================
+      // GET CURRENT USER
+      // ====================================================
+
+      const userResponse = await fetch("/api/users/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!userResponse.ok) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const user = await userResponse.json();
+
+      console.log("Current user:", user);
+
+      // ====================================================
+      // GET TRANSACTIONS
+      // ====================================================
+
+      const accountNumber = user.account_number;
+
+      console.log("Account number:", accountNumber);
+
+      if (accountNumber) {
+        const transactionResponse = await fetch(
+          `/api/transactions/${accountNumber}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        console.log(
+          "Transaction endpoint:",
+          transactionResponse.status,
+          `/api/transactions/${accountNumber}`,
+        );
+      } else {
+        console.warn("No account_number returned by /api/users/me");
+      }
+
+      // ====================================================
+      // GET ORDERS
+      // ====================================================
+
+      const response = await fetch("/api/orders/my", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        container.innerHTML = `
+                <div class="auth-card">
+                    <p>
+                        ${data.detail || "Unable to load orders."}
+                    </p>
+                </div>
+            `;
+
+        return;
+      }
+
+      // ====================================================
+      // EMPTY ORDERS
+      // ====================================================
+
+      if (data.length === 0) {
+        container.innerHTML = `
+                <div class="auth-card">
+
+                    <h2>
+                        No orders yet
+                    </h2>
+
+                    <p>
+                        You haven't purchased anything.
+                    </p>
+
+                    <br>
+
+                    <a href="/products">
+                        Browse Products
+                    </a>
+
+                </div>
+            `;
+
+        return;
+      }
+
+      // ====================================================
+      // RENDER ORDERS
+      // ====================================================
+
+      container.innerHTML = data
+        .map(
+          (order) => `
+
+            <div
+                class="auth-card"
+                style="margin-bottom: 16px;"
+            >
+
+                <h2>
+                    Order #${order.id}
+                </h2>
+
+                <p>
+                    <strong>Status:</strong>
+                    ${order.status}
+                </p>
+
+                <p>
+                    <strong>Total:</strong>
+                    ${
+                      order.currency === "USD" ? "$" : "Rp"
+                    }${order.total_amount.toLocaleString("id-ID")}
+                </p>
+
+                <p>
+                    <strong>Date:</strong>
+                    ${order.created_at}
+                </p>
+
+                ${
+                  order.challenge_flag
+                    ? `
+                        <p style="
+                            margin-top: 16px;
+                            padding: 10px 12px;
+                            border-left: 4px solid #198754;
+                            background: #f0f8f3;
+                            color: #198754;
+                            font-family: monospace;
+                            border-radius: 4px;
+                        ">
+                            ${order.challenge_flag}
+                        </p>
+                    `
+                    : ""
+                }
+
+                <br>
+
+                <button
+                    onclick="viewOrder(${order.id})"
+                >
+                    View Order
+                </button>
+
+            </div>
+
+        `,
+        )
+        .join("");
+    } catch (error) {
+      console.error("Orders page error:", error);
+
+      container.innerHTML = `
+            <div class="auth-card">
+                <p>
+                    Unable to connect to server.
+                </p>
+            </div>
+        `;
+    }
+  }
+
+  function viewOrder(orderId) {
+    window.location.href = `/orders/${orderId}`;
+  }
+
+  loadOrders();
+</script>
+
+{% endblock %}

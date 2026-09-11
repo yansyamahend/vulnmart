@@ -1,0 +1,210 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
+
+#login-message {
+  margin-top: 12px;
+  color: #b00020;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}
+
+.auth-card textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 12px;
+}
+
+#profile-message {
+  margin-top: 12px;
+}
+
+/* Navbar */
+
+.navbar {
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.navbar-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  gap: 24px;
+}
+
+nav a {
+  color: #555;
+}
+
+nav a:hover {
+  color: #111;
+}
+
+/* Hero */
+
+.hero {
+  background: white;
+  margin-top: 32px;
+  padding: 48px;
+  border-radius: 12px;
+}
+
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  color: #666;
+}
+
+/* Products */
+
+.products-section {
+  margin-top: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header a {
+  color: #666;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.product-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.product-card h3 {
+  margin: 12px 0 8px;
+  font-size: 18px;
+}
+
+.product-image {
+  height: 160px;
+  border-radius: 8px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.premium {
+  border: 2px solid #aaa;
+}
+
+/* Authentication */
+
+.auth-container {
+  max-width: 420px;
+  margin: 64px auto;
+}
+
+.auth-card {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.auth-card h1 {
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-card input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.auth-card button {
+  padding: 12px;
+  background: #222;
+  color: white;
+}
+
+.forgot {
+  margin-top: 16px;
+  text-align: center;
+  color: #666;
+}
+
+/* Footer */
+
+footer {
+  margin-top: 64px;
+  padding: 24px 0;
+  color: #777;
+  text-align: center;
+}

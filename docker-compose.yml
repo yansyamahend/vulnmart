@@ -1,0 +1,27 @@
+services:
+  vulnmart:
+    build: .
+    container_name: vulnmart
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./:/app
+
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+
+    networks:
+      - ctfd_default
+
+networks:
+  ctfd_default:
+    external: true

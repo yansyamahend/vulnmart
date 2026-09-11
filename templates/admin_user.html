@@ -1,0 +1,69 @@
+{% extends "base.html" %} {% block title %} VulnMart - Admin User {% endblock %}
+{% block content %}
+
+<section class="auth-container">
+  <div class="auth-card" id="user-container" data-user-id="{{ user_id }}">
+    Loading user...
+  </div>
+</section>
+
+<script>
+  const container = document.getElementById("user-container");
+
+  const userId = container.dataset.userId;
+
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadUser() {
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      container.innerHTML = `
+            <h1>Unable to load user</h1>
+            <p>${data.detail}</p>
+        `;
+      return;
+    }
+
+    container.innerHTML = `
+        <h1>${data.username}</h1>
+
+        <p>
+            <strong>Full Name:</strong>
+            ${data.full_name}
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            ${data.email}
+        </p>
+
+        <p>
+            <strong>Role:</strong>
+            ${data.role}
+        </p>
+
+        <hr style="margin: 20px 0;">
+
+        <h3>Bio</h3>
+
+        <p>
+            ${data.bio ?? ""}
+        </p>
+    `;
+  }
+
+  loadUser();
+</script>
+
+{% endblock %}

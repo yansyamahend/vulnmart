@@ -1,0 +1,128 @@
+{% extends "base.html" %} {% block title %} VulnMart - Exchange {% endblock %}
+{% block content %}
+
+<section class="auth-container">
+  <div class="auth-card">
+    <h1>Currency Exchange</h1>
+
+    <p class="auth-subtitle">Convert your IDR balance to USD.</p>
+
+    <div id="wallet-info">Loading wallet...</div>
+
+    <form id="exchange-form">
+      <label for="amount"> IDR Amount </label>
+
+      <input type="number" id="amount" placeholder="100000" min="1" required />
+
+      <p style="font-size: 14px; color: #777">
+        Minimal IDR 16.0000 untuk penukaran ke USD
+      </p>
+
+      <button type="submit">Convert</button>
+    </form>
+
+    <p id="exchange-message"></p>
+  </div>
+</section>
+
+<script>
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadWallet() {
+    const container = document.getElementById("wallet-info");
+
+    try {
+      const response = await fetch("/api/wallet/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        container.textContent = data.detail || "Unable to load wallet.";
+        return;
+      }
+
+      container.innerHTML = data.wallets
+        .map(
+          (wallet) => `
+                <div style="
+                    padding: 12px 0;
+                    border-bottom: 1px solid #eee;
+                ">
+                    <strong>${wallet.currency}</strong>
+
+                    <span style="float: right;">
+                        ${wallet.balance.toLocaleString("id-ID")}
+                    </span>
+                </div>
+            `,
+        )
+        .join("");
+    } catch (error) {
+      console.error(error);
+
+      container.textContent = "Unable to connect to wallet.";
+    }
+  }
+
+  document
+    .getElementById("exchange-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const amount = document.getElementById("amount").value;
+
+      const message = document.getElementById("exchange-message");
+
+      message.textContent = "Converting...";
+
+      try {
+        /*
+         * UI hanya meminta amount.
+         *
+         * Rate 16000 adalah nilai default
+         * yang dikirim browser.
+         *
+         * Peserta nantinya dapat melihat dan
+         * memanipulasi parameter rate melalui Burp.
+         */
+        const response = await fetch(
+          `/api/exchange/?amount=${amount}&rate=16000`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          message.textContent = data.detail || "Exchange failed.";
+
+          return;
+        }
+
+        message.textContent = `Converted ${Number(data.amount).toLocaleString("id-ID")} IDR → ${Number(data.usd_received).toLocaleString("id-ID")} USD.`;
+
+        await loadWallet();
+      } catch (error) {
+        console.error("Exchange error:", error);
+
+        message.textContent = "Unable to connect to server.";
+      }
+    });
+
+  loadWallet();
+</script>
+
+{% endblock %}

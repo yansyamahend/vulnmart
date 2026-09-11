@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{% block title %}VulnMart{% endblock %}</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/style.css') }}"
+    />
+  </head>
+
+  <body>
+    <header class="navbar">
+      <div class="container navbar-inner">
+        <a href="/" class="logo">VulnMart</a>
+
+        <nav>
+          <a href="/">Home</a>
+
+          <a href="/products" onclick="navigateWithSession(event, '/products')">
+            Products
+          </a>
+
+          <a href="/cart" onclick="navigateWithSession(event, '/cart')">
+            Cart
+          </a>
+
+          <a href="/orders" onclick="navigateWithSession(event, '/orders')">
+            Orders
+          </a>
+
+          <a href="/exchange" onclick="navigateWithSession(event, '/exchange')">
+            Exchange
+          </a>
+
+          <a href="/profile" onclick="navigateWithSession(event, '/profile')">
+            Profile
+          </a>
+
+          <a href="/login" onclick="logoutUser(event)"> Logout </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">{% block content %} {% endblock %}</main>
+
+    <footer>
+      <div class="container">
+        <p>VulnMart — Educational Security Lab</p>
+      </div>
+    </footer>
+
+    <script>
+      // ========================================================
+      // SYNC localStorage JWT -> HttpOnly cookie
+      // ========================================================
+
+      let lastSyncedToken = null;
+
+      async function syncSession() {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          lastSyncedToken = null;
+          return false;
+        }
+
+        // Tidak perlu request berulang kalau token belum berubah.
+        if (token === lastSyncedToken) {
+          return true;
+        }
+
+        try {
+          const response = await fetch("/api/auth/set-session", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+
+            body: `token=${encodeURIComponent(token)}`,
+          });
+
+          if (response.ok) {
+            lastSyncedToken = token;
+
+            console.log("Session synchronized.");
+
+            return true;
+          }
+
+          console.error("Session synchronization failed:", response.status);
+
+          return false;
+        } catch (error) {
+          console.error("Session synchronization error:", error);
+
+          return false;
+        }
+      }
+
+      // ========================================================
+      // DETECT localStorage.setItem()
+      //
+      // Ini membuat perubahan JWT di tab yang sama
+      // langsung terdeteksi.
+      // ========================================================
+
+      const originalSetItem = Storage.prototype.setItem;
+
+      Storage.prototype.setItem = function (key, value) {
+        originalSetItem.call(this, key, value);
+
+        if (this === localStorage && key === "access_token") {
+          syncSession();
+        }
+      };
+
+      // ========================================================
+      // DETECT localStorage.removeItem()
+      // ========================================================
+
+      const originalRemoveItem = Storage.prototype.removeItem;
+
+      Storage.prototype.removeItem = function (key) {
+        originalRemoveItem.call(this, key);
+
+        if (this === localStorage && key === "access_token") {
+          lastSyncedToken = null;
+        }
+      };
+
+      // ========================================================
+      // DETECT CHANGE FROM ANOTHER TAB
+      // ========================================================
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === "access_token") {
+          syncSession();
+        }
+      });
+
+      // ========================================================
+      // PERIODIC SAFETY SYNC
+      //
+      // Kalau token berubah karena metode lain,
+      // cookie tetap akan disamakan.
+      // ========================================================
+
+      setInterval(syncSession, 500);
+
+      // ========================================================
+      // NAVIGATION
+      // ========================================================
+
+      async function navigateWithSession(event, url) {
+        event.preventDefault();
+
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          window.location.href = "/login";
+
+          return;
+        }
+
+        await syncSession();
+
+        window.location.href = url;
+      }
+
+      // ========================================================
+      // LOGOUT
+      // ========================================================
+
+      async function logoutUser(event) {
+        event.preventDefault();
+
+        try {
+          await fetch("/api/auth/logout", {
+            method: "POST",
+          });
+        } catch (error) {
+          console.error("Logout request failed:", error);
+        } finally {
+          lastSyncedToken = null;
+
+          localStorage.removeItem("access_token");
+
+          window.location.replace("/login");
+        }
+      }
+
+      // ========================================================
+      // INITIAL SYNC
+      // ========================================================
+
+      syncSession();
+    </script>
+  </body>
+</html>

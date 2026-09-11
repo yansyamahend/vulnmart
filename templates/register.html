@@ -1,0 +1,127 @@
+{% extends "base.html" %} {% block title %}VulnMart - Register{% endblock %} {%
+block content %}
+
+<section class="auth-container">
+  <div class="auth-card">
+    <h1>Create Account</h1>
+
+    <p class="auth-subtitle">Create your VulnMart account</p>
+
+    <form id="register-form">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        autocomplete="username"
+        placeholder="Choose a username"
+        required
+      />
+
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        autocomplete="email"
+        placeholder="you@example.com"
+        required
+      />
+
+      <label for="full-name">Full Name</label>
+      <input
+        type="text"
+        id="full-name"
+        name="full_name"
+        autocomplete="name"
+        placeholder="Your full name"
+        required
+      />
+
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        autocomplete="new-password"
+        placeholder="Create a password"
+        required
+      />
+
+      <label for="confirm-password">Confirm Password</label>
+      <input
+        type="password"
+        id="confirm-password"
+        name="confirm_password"
+        autocomplete="new-password"
+        placeholder="Repeat your password"
+        required
+      />
+
+      <button type="submit">Create Account</button>
+
+      <p id="register-message"></p>
+    </form>
+
+    <p class="forgot">
+      Already have an account?
+      <a href="/login">Login</a>
+    </p>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById("register-form");
+  const message = document.getElementById("register-message");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const fullName = document.getElementById("full-name").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (password !== confirmPassword) {
+      message.textContent = "Passwords do not match.";
+      return;
+    }
+
+    message.textContent = "Creating account...";
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          full_name: fullName,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.detail || "Registration failed.";
+        return;
+      }
+
+      message.textContent = "Registration successful. Redirecting to login...";
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
+    } catch (error) {
+      console.error(error);
+      message.textContent = "Unable to connect to server.";
+    }
+  });
+</script>
+
+{% endblock %}

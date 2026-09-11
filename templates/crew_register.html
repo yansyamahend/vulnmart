@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>CrewPanel - Register</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/style.css') }}"
+    />
+  </head>
+
+  <body>
+    <main class="container">
+      <section class="auth-container">
+        <div class="auth-card">
+          <h1>Crew Registration</h1>
+
+          <p class="auth-subtitle">Create a CrewPanel account</p>
+
+          <form id="register-form">
+            <label for="full-name"> Full Name </label>
+
+            <input type="text" id="full-name" required />
+
+            <label for="username"> Username </label>
+
+            <input type="text" id="username" required />
+
+            <label for="email"> Email </label>
+
+            <input type="email" id="email" required />
+
+            <label for="password"> Password </label>
+
+            <input type="password" id="password" required />
+
+            <button type="submit">Register</button>
+
+            <p id="message"></p>
+          </form>
+
+          <p class="forgot">
+            Already registered?
+            <a href="/CrewPanel"> Login </a>
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("register-form");
+
+      const message = document.getElementById("message");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const response = await fetch("/api/crew/register", {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            full_name: document.getElementById("full-name").value,
+
+            username: document.getElementById("username").value,
+
+            email: document.getElementById("email").value,
+
+            password: document.getElementById("password").value,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          message.textContent = data.message;
+
+          return;
+        }
+
+        sessionStorage.setItem("crew_username", data.username);
+
+        message.textContent = "Registration successful. Continue to OTP...";
+
+        setTimeout(() => {
+          window.location.href = "/CrewPanel/otp";
+        }, 700);
+      });
+    </script>
+  </body>
+</html>

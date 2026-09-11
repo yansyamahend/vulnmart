@@ -1,0 +1,109 @@
+{% extends "base.html" %} {% block title %} VulnMart - Product {% endblock %} {%
+block content %}
+
+<section class="auth-container">
+  <div
+    class="auth-card"
+    id="product-container"
+    data-product-id="{{ product_id }}"
+  >
+    Loading product...
+  </div>
+</section>
+
+<script>
+  const container = document.getElementById("product-container");
+  const productId = container.dataset.productId;
+
+  async function loadProduct() {
+    try {
+      const response = await fetch(`/api/products/${productId}`);
+
+      if (!response.ok) {
+        container.innerHTML = `
+                <h1>Product not found</h1>
+                <p>The requested product does not exist.</p>
+            `;
+        return;
+      }
+
+      const product = await response.json();
+
+      container.innerHTML = `
+            <div class="product-image">
+                🛍️
+            </div>
+
+            <h1>${product.name}</h1>
+
+            <p class="price">
+               ${product.currency === "USD" ? "$" : "Rp"}${product.price.toLocaleString("id-ID")}
+            </p>
+
+            <p>
+                ${product.description ?? "No description available."}
+            </p>
+
+            <p>
+                <strong>Stock:</strong> ${product.stock}
+            </p>
+
+            <button onclick="addToCart(${product.id})">
+                Add to Cart
+            </button>
+
+            <p id="cart-message"></p>
+        `;
+    } catch (error) {
+      console.error(error);
+
+      container.innerHTML = `
+            <h1>Unable to load product</h1>
+            <p>Please try again later.</p>
+        `;
+    }
+  }
+
+  async function addToCart(productId) {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/cart/?product_id=${productId}&quantity=1`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      const message = document.getElementById("cart-message");
+
+      if (!response.ok) {
+        message.textContent = data.detail || "Unable to add product to cart.";
+        return;
+      }
+
+      message.textContent = "Product added to cart.";
+    } catch (error) {
+      console.error(error);
+
+      const message = document.getElementById("cart-message");
+
+      if (message) {
+        message.textContent = "Unable to connect to server.";
+      }
+    }
+  }
+
+  loadProduct();
+</script>
+{% endblock %}

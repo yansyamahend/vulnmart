@@ -1,0 +1,77 @@
+{% extends "base.html" %} {% block title %} VulnMart - Home {% endblock %} {%
+block content %}
+
+<section class="hero">
+  <h1>Welcome to VulnMart</h1>
+  <p>Your everyday marketplace for electronics, gaming, fashion, and more.</p>
+</section>
+
+<section class="products-section">
+  <div class="section-header">
+    <h2>Popular Products</h2>
+    <a href="/products">View all</a>
+  </div>
+
+  <div id="product-grid" class="product-grid">
+    <p>Loading products...</p>
+  </div>
+</section>
+
+<script>
+  async function loadProducts() {
+    const grid = document.getElementById("product-grid");
+
+    try {
+      const response = await fetch("/api/products/");
+
+      if (!response.ok) {
+        grid.innerHTML = "<p>Failed to load products.</p>";
+        return;
+      }
+
+      const products = await response.json();
+
+      if (products.length === 0) {
+        grid.innerHTML = "<p>No products available.</p>";
+        return;
+      }
+
+      grid.innerHTML = products
+        .map(
+          (product) => `
+            <div class="product-card">
+                <div class="product-image">
+                    🛍️
+                </div>
+
+                <h3>${product.name}</h3>
+
+                <p class="price">
+                    ${product.currency === "USD" ? "$" : "Rp"}${product.price.toLocaleString("id-ID")}
+                </p>
+
+                <p>
+                    Stock: ${product.stock}
+                </p>
+
+                <button onclick="viewProduct(${product.id})">
+                    View Product
+                </button>
+            </div>
+        `,
+        )
+        .join("");
+    } catch (error) {
+      grid.innerHTML = "<p>Unable to connect to VulnMart API.</p>";
+      console.error(error);
+    }
+  }
+
+  function viewProduct(productId) {
+    window.location.href = `/products/${productId}`;
+  }
+
+  loadProducts();
+</script>
+
+{% endblock %}

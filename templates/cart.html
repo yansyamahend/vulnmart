@@ -1,0 +1,217 @@
+{% extends "base.html" %} {% block title %} VulnMart - Cart {% endblock %} {%
+block content %}
+
+<section class="products-section">
+  <div class="section-header">
+    <h1>Shopping Cart</h1>
+
+    <a href="/products"> Continue Shopping </a>
+  </div>
+
+  <div id="cart-container">Loading cart...</div>
+</section>
+
+<script>
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    window.location.href = "/login";
+  }
+
+  async function loadCart() {
+    const container = document.getElementById("cart-container");
+
+    try {
+      const response = await fetch("/api/cart/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        container.innerHTML = `<p>${data.detail}</p>`;
+        return;
+      }
+
+      const idrItems = data.items.filter((item) => item.currency === "IDR");
+
+      const usdItems = data.items.filter((item) => item.currency === "USD");
+
+      function renderItems(items) {
+        if (items.length === 0) {
+          return "<p>No items.</p>";
+        }
+
+        return items
+          .map((item) => {
+            const subtotal = item.price * item.quantity;
+
+            const symbol = item.currency === "USD" ? "$" : "Rp";
+
+            return `
+                    <div
+                        class="product-card"
+                        style="margin-bottom: 12px;"
+                    >
+
+                        <h3>
+                            ${item.product_name}
+                        </h3>
+
+                        <p>
+                            Price:
+                            ${symbol}${item.price.toLocaleString("id-ID")}
+                        </p>
+
+                        <p>
+                            Quantity:
+                            ${item.quantity}
+                        </p>
+
+                        <p>
+                            Subtotal:
+                            ${symbol}${subtotal.toLocaleString("id-ID")}
+                        </p>
+
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      function calculateTotal(items) {
+        return items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0,
+        );
+      }
+
+      const idrTotal = calculateTotal(idrItems);
+
+      const usdTotal = calculateTotal(usdItems);
+
+      container.innerHTML = `
+
+            <h2>IDR Items</h2>
+
+            <div style="margin-top: 16px;">
+                ${renderItems(idrItems)}
+            </div>
+
+            ${
+              idrItems.length > 0
+                ? `
+                    <div
+                        class="auth-card"
+                        style="margin: 24px 0;"
+                    >
+
+                        <h3>
+                            IDR Total:
+                            Rp${idrTotal.toLocaleString("id-ID")}
+                        </h3>
+
+                        <br>
+
+                        <button
+                            onclick="checkout('IDR')"
+                        >
+                            Checkout IDR
+                        </button>
+
+                        <p id="idr-message"></p>
+
+                    </div>
+                `
+                : ""
+            }
+
+
+            <hr style="margin: 32px 0;">
+
+
+            <h2>USD Items</h2>
+
+            <div style="margin-top: 16px;">
+                ${renderItems(usdItems)}
+            </div>
+
+            ${
+              usdItems.length > 0
+                ? `
+                    <div
+                        class="auth-card"
+                        style="margin: 24px 0;"
+                    >
+
+                        <h3>
+                            USD Total:
+                            $${usdTotal.toLocaleString("id-ID")}
+                        </h3>
+
+                        <br>
+
+                        <button
+                            onclick="checkout('USD')"
+                        >
+                            Checkout USD
+                        </button>
+
+                        <p id="usd-message"></p>
+
+                    </div>
+                `
+                : ""
+            }
+
+        `;
+    } catch (error) {
+      console.error(error);
+
+      container.innerHTML = "<p>Unable to connect to server.</p>";
+    }
+  }
+
+  async function checkout(currency) {
+    const message = document.getElementById(
+      currency === "IDR" ? "idr-message" : "usd-message",
+    );
+
+    message.textContent = "Processing checkout...";
+
+    try {
+      const response = await fetch(`/api/checkout/?currency=${currency}`, {
+        method: "POST",
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.detail || "Checkout failed.";
+        return;
+      }
+
+      if (data.challenge_flag) {
+        message.textContent = data.challenge_flag;
+      } else {
+        message.textContent = `Order #${data.order_id} completed.`;
+      }
+
+      await loadCart();
+    } catch (error) {
+      console.error(error);
+
+      message.textContent = "Unable to connect to server.";
+    }
+  }
+
+  loadCart();
+</script>
+
+{% endblock %}
