@@ -7,6 +7,10 @@ services:
     ports:
       - "8000:8000"
 
+    environment:
+      ADMIN_BOT_URL: http://vulnmart-admin-bot:9000
+      BOT_TRIGGER_SECRET: vulnmart-bot-local-secret
+
     volumes:
       - ./:/app
 
