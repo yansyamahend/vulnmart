@@ -861,3 +861,42 @@ Built for hands-on security experimentation and black-box vulnerability research
 <p align="center">
   <sub>🧪 Learn by testing · 🔍 Understand the root cause · 🛠️ Think like a defender</sub>
 </p>
+
+---
+
+## 👤 About Me
+
+<div align="center">
+
+### **Aryansyah Mahendra**
+
+`S1 Sistem Informasi — Telkom University`
+`Cyber Security Enthusiast`
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Aryansyah%20Mahendra-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/aryansyah-mahendra-689b1a427)
+[![Instagram](https://img.shields.io/badge/Instagram-arymahendra._-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/arymahendra._/)
+
+</div>
+
+### 🛠️ Services
+
+- 🌐 **Web Pentest**
+- 🎯 **Web Pentest Course**
+- 🧩 **CTF Beginner-Friendly Course**
+- 💻 **Web Development**
+
+### ☕ Support My Work
+
+If you find this project useful, enjoy the lab, or want to support the development of future cybersecurity labs and learning resources, you can support me through Saweria.
+
+<div align="center">
+
+[![Support via Saweria](https://img.shields.io/badge/☕%20Support%20My%20Work-Saweria-orange?style=for-the-badge)](https://saweria.co/M4h3ndd)
+
+</div>
+
+<p align="center">
+  <sub>Built with curiosity, secured with practice, and shared for learning.</sub>
+</p>
+
+---

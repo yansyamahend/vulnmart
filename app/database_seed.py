@@ -29,7 +29,7 @@ try:
 
     victim = User(
         username="victim",
-        email="victim@vulnmart.local",
+    email="victim@vulnmart.local",
         password="VictimPass123!",
         full_name="Demo Victim",
         role="member",
