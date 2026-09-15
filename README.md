@@ -850,7 +850,7 @@ The admin bot should remain an **internal service** and should not be directly e
 
 ---
 
-## 👤 Project
+## 🛠️💡</> Project
 
 ### VulnMart
 
@@ -864,7 +864,7 @@ Built for hands-on security experimentation and black-box vulnerability research
 
 ---
 
-## 👤 About Me
+## 👤 Open Source by
 
 <div align="center">
 
