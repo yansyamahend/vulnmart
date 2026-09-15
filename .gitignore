@@ -1,9 +1,23 @@
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
+# Environment / secrets
 .env
 .env.*
-*.log
-data/vulnmart.db
+admin-bot/.env
+admin-bot/.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local database
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

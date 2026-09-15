@@ -1,558 +1,863 @@
-# VulnMart
+# 🛒 VulnMart
 
-**VulnMart** is an intentionally vulnerable e-commerce web application designed for learning and practicing **web application security**.
+> An intentionally vulnerable e-commerce application built as a practical **Web Pentest / AppSec learning laboratory**.
 
-The application simulates an online marketplace with features such as user accounts, products, shopping carts, orders, wallets, transactions, password reset, and administrative functionality.
+<p align="center">
+  <a href="#-start-here"><strong>🚀 Start Lab</strong></a> ·
+  <a href="#-lab-map"><strong>🗺️ Lab Map</strong></a> ·
+  <a href="#-testing-workflow"><strong>🔎 Testing Workflow</strong></a> ·
+  <a href="#-reporting-findings"><strong>📝 Reporting</strong></a>
+</p>
 
-VulnMart is intentionally built with security weaknesses that can be discovered and analyzed through hands-on security testing.
+<p align="center">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white">
+  <img alt="Playwright" src="https://img.shields.io/badge/Playwright-Browser%20Bot-2EAD33?logo=playwright&logoColor=white">
+  <img alt="Security Lab" src="https://img.shields.io/badge/Purpose-Web%20Security%20Lab-111827">
+</p>
 
-> **Educational Project:** VulnMart is intended for security research, penetration testing practice, and web security education.
+VulnMart simulates an online marketplace with user accounts, products, wallets, orders, payments, password recovery, administrative functionality, and security-testing scenarios.
+
+The project is designed to be used like a small real-world target: learners interact with the application through the browser and API, inspect requests with tools such as Burp Suite, identify trust-boundary issues, and validate exploitation through realistic application flows.
+
+> **Learning philosophy:** the objective is not merely to "get the flag". The intended outcome is to understand **what you control → where the input goes → what the server trusts → why the control fails → what the real impact is → how to fix it**.
 
 ---
 
-## Overview
+## 🧭 Table of Contents
 
-VulnMart is a vulnerable web application created as a practical environment for understanding how security vulnerabilities can occur in real-world web applications.
+- [🎯 Start Here](#-start-here)
+- [🧪 Lab Progress](#-lab-progress)
+- [🗺️ Lab Map](#-lab-map)
+- [🎯 Project Goals](#-project-goals)
+- [🧩 Main Components](#-main-components)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📁 Project Structure](#-project-structure)
+- [🚀 Installation & Running the Lab](#-installation--running-the-lab)
+- [🔐 Environment Configuration](#-environment-configuration)
+- [🤖 Admin Review Flow](#-admin-review-flow)
+- [🔄 Resetting the Lab](#-resetting-the-lab)
+- [🔎 Testing Workflow](#-testing-workflow)
+- [📝 Reporting Findings](#-reporting-findings)
+- [⚠️ Security Notice](#️-security-notice)
+- [🎓 Educational Philosophy](#-educational-philosophy)
+- [🌐 Deployment](#-deployment)
+- [👤 Project](#-project)
 
-Instead of testing isolated vulnerability examples, VulnMart provides a more realistic application workflow where multiple features interact with each other.
+---
 
-This makes it possible to practice the complete vulnerability research process:
+## 🚀 Start Here
+
+### What is VulnMart?
+
+VulnMart is a deliberately vulnerable marketplace used to practice **black-box web application security testing**. You can approach it from a browser, through HTTP/API requests, and with a proxy such as Burp Suite.
+
+### What can I practice?
+
+| Area                  | Examples of what to investigate                                |
+| --------------------- | -------------------------------------------------------------- |
+| 🔍 Recon              | Pages, endpoints, parameters, attack surface                   |
+| 🔐 Authentication     | Login, session handling, JWT behavior                          |
+| 🛡️ Authorization      | IDOR / BOLA-style access-control boundaries                    |
+| 🧠 Business Logic     | Wallet, checkout, orders, currency/exchange flows              |
+| 🧪 Input Handling     | Validation, encoding, user-controlled content                  |
+| 🌐 API Security       | Request/response behavior, object references, trust boundaries |
+| 🤖 Client/Admin Flows | Browser-side execution and administrator review scenarios      |
+
+<details>
+<summary><strong>🧑‍💻 Recommended mindset</strong></summary>
+
+Do not begin by throwing random payloads at every endpoint.
+
+Start with a simple loop:
 
 ```text
-Reconnaissance
-      ↓
-Attack Surface Mapping
-      ↓
-Vulnerability Identification
-      ↓
-Exploitation
-      ↓
-Impact Analysis
-      ↓
-Root Cause Analysis
-      ↓
-Remediation
+OBSERVE
+   ↓
+MAP THE FLOW
+   ↓
+FORM A HYPOTHESIS
+   ↓
+TEST THE HYPOTHESIS
+   ↓
+VALIDATE IMPACT
+   ↓
+UNDERSTAND ROOT CAUSE
+   ↓
+PROPOSE REMEDIATION
 ```
 
-The goal is not only to find a vulnerability, but also to understand **why it exists, how it can be exploited, what impact it has, and how it should be fixed**.
+</details>
 
 ---
 
-## Features
+## 🧪 Lab Progress
 
-VulnMart currently provides several application features commonly found in modern e-commerce applications.
+Use the checklist below as a lightweight progress tracker while working through the lab.
 
-### User Features
+### Foundation
 
-* User registration
-* User authentication
-* User profiles
-* Password management
-* Password reset
-* Product browsing
-* Shopping cart
-* Checkout
-* Order management
-* Wallet
-* Transaction history
-* Currency exchange functionality
+- [ ] Start VulnMart successfully
+- [ ] Start the Admin Bot successfully
+- [ ] Open the application in a browser
+- [ ] Proxy browser traffic through Burp Suite
+- [ ] Identify the main application pages
+- [ ] Identify interesting API endpoints
 
-### Administrative Features
+### Authentication & Sessions
 
-* User management
-* Administrative dashboard
-* Account management
-* Application management functionality
+- [ ] Inspect login requests
+- [ ] Inspect JWT structure and claims
+- [ ] Understand browser session bridging
+- [ ] Identify authentication trust boundaries
 
-### Security Training Features
+### Authorization & API
 
-* Multiple application attack surfaces
-* Authentication and authorization workflows
-* API endpoints
-* Financial workflows
-* Account management workflows
-* Administrative functionality
-* Business logic interactions
-
----
-
-## Security Scope
-
-The application can be used to explore multiple areas of web application security.
-
-### Authentication
-
-Areas related to:
-
-* Login
-* Registration
-* Session handling
-* Password management
-* Password reset
-* Authentication flows
-
-### Authorization
-
-Areas related to:
-
-* Access control
-* Privilege separation
-* User-to-user access
-* Administrative access
-* Resource authorization
-
-### Session Management
-
-Areas related to:
-
-* Session handling
-* Authentication state
-* Token-based authentication
-* Session validation
+- [ ] Test object references and ownership checks
+- [ ] Compare behavior between different users
+- [ ] Investigate IDOR / BOLA-style scenarios
+- [ ] Test server-side authorization decisions
 
 ### Business Logic
 
-Areas related to:
+- [ ] Trace cart → checkout → order flow
+- [ ] Inspect wallet and transaction behavior
+- [ ] Inspect currency/exchange functionality
+- [ ] Look for client-side values that should be server-controlled
 
-* E-commerce workflows
-* Shopping cart operations
-* Checkout logic
-* Orders
-* Wallet operations
-* Transactions
-* Promotional or financial logic
+### Admin / Browser Review
 
-### User & Account Management
+- [ ] Understand the admin review queue
+- [ ] Trace user-controlled profile data into the admin workflow
+- [ ] Observe browser-side challenge execution
 
-Areas related to:
+### Reporting
 
-* User profiles
-* Account modification
-* Sensitive account operations
-* User-related resources
+- [ ] Write a concise vulnerability description
+- [ ] Record reproduction steps
+- [ ] Capture a minimal proof of concept
+- [ ] Explain impact
+- [ ] Identify root cause
+- [ ] Propose remediation
 
-### API Security
-
-The application includes API endpoints that can be investigated for issues involving:
-
-* Input validation
-* Authentication
-* Authorization
-* Object-level access control
-* Parameter manipulation
-* Business logic
-
-### Administrative Functionality
-
-Administrative functionality provides an additional attack surface for analyzing:
-
-* Privilege boundaries
-* Administrative authorization
-* User management
-* Sensitive operations
-
-> The exact vulnerabilities and exploitation techniques are intentionally not listed in this section so that the application can also be used as a hands-on security testing environment.
+> 💡 **Tip:** Keep this checklist in your fork or lab notes and tick items off as you learn.
 
 ---
 
-## Learning Objectives
+## 🗺️ Lab Map
 
-VulnMart is designed to help security learners develop practical skills in web application testing.
+The table below is the intended mental map of the application.
 
-By working with VulnMart, you can practice:
-
-* Understanding web application architecture
-* Mapping application attack surfaces
-* Analyzing HTTP requests and responses
-* Identifying authentication weaknesses
-* Testing authorization controls
-* Investigating business logic flaws
-* Testing API endpoints
-* Understanding session and token handling
-* Analyzing application behavior
-* Building exploitation hypotheses
-* Reproducing vulnerabilities
-* Assessing security impact
-* Identifying root causes
-* Developing remediation strategies
-
-The project is intended to encourage a security mindset:
-
-```text
-Observe
-  ↓
-Understand
-  ↓
-Hypothesize
-  ↓
-Test
-  ↓
-Analyze
-  ↓
-Exploit
-  ↓
-Explain
-  ↓
-Remediate
+```mermaid
+flowchart TD
+    A[🌐 Browser / Burp Suite] --> B[🛒 VulnMart FastAPI]
+    B --> C[🔐 Authentication]
+    B --> D[👤 User Profiles]
+    B --> E[🛍️ Products / Cart]
+    B --> F[💳 Wallet / Transactions]
+    B --> G[📦 Orders / Checkout]
+    B --> H[🔑 Password Recovery]
+    B --> I[👑 Admin Pages / APIs]
+    B --> J[(SQLite Database)]
+    I --> K[🤖 Admin Review Bot]
+    K --> I
 ```
 
+### 🔬 Suggested attack-surface tour
+
+```text
+Public pages
+   ↓
+Authentication
+   ↓
+Authenticated user features
+   ↓
+API endpoints
+   ↓
+Object ownership / authorization
+   ↓
+Business logic
+   ↓
+Admin-only functionality
+   ↓
+Admin review automation
+```
+
+<details>
+<summary><strong>Why this order?</strong></summary>
+
+It helps establish the normal application behavior before testing security boundaries. Once you understand a legitimate flow, it becomes much easier to spot where an attacker can manipulate an identifier, role, state, or assumption.
+
+</details>
+
 ---
 
-## Technology Stack
+## 🎯 Project Goals
 
-VulnMart is built using a lightweight web application stack.
+VulnMart was built to provide a controlled environment for practicing:
 
-| Technology     | Purpose                                 |
-| -------------- | --------------------------------------- |
-| Python         | Backend programming language            |
-| FastAPI        | Web application framework               |
-| SQLAlchemy     | Database ORM                            |
-| Jinja2         | Server-side HTML templating             |
-| HTML / CSS     | Frontend                                |
-| Docker         | Application containerization            |
-| Docker Compose | Local deployment and service management |
+- Web application reconnaissance and attack-surface mapping
+- API testing
+- Authentication and authorization testing
+- JWT/session analysis
+- Input validation and output encoding analysis
+- Business-logic testing
+- IDOR / BOLA-style access-control testing
+- Client-side and server-side trust-boundary analysis
+- Black-box exploitation using browser and HTTP tooling
+
+The goal is not only to "get the flag", but to understand **why the vulnerability exists, how the application processes the request, and what a proper fix would look like**.
 
 ---
 
-## Project Structure
+## 🧩 Main Components
+
+### 🛒 VulnMart Web Application
+
+The main FastAPI application provides:
+
+- User registration and authentication
+- JWT-based authentication
+- Browser session bridging
+- User profiles
+- Products and categories
+- Shopping cart
+- Checkout and orders
+- Wallets and transactions
+- Currency/exchange functionality
+- Password recovery
+- Administrative pages and APIs
+- Security-lab challenge scenarios
+
+### 🤖 Automated Admin Review Bot
+
+VulnMart also includes an isolated Playwright-based admin bot.
+
+The bot:
+
+1. Logs in as the configured admin account
+2. Obtains the application's JWT
+3. Stores the token in the browser context
+4. Creates the application's HttpOnly session through `/api/auth/set-session`
+5. Opens the requested admin profile
+6. Waits for page activity so browser-side challenge payloads can execute
+
+This component is used to reproduce a realistic **"administrator reviews user-submitted content"** workflow.
+
+---
+
+## 🏗️ Architecture
+
+```text
+                       ┌──────────────────────┐
+                       │       Browser        │
+                       │  Burp / Chrome etc.  │
+                       └──────────┬───────────┘
+                                  │
+                                  ▼
+                       ┌──────────────────────┐
+                       │      VulnMart        │
+                       │      FastAPI :8000   │
+                       └───────┬─────────┬────┘
+                               │         │
+                        SQLite │         │ HTTP
+                               │         ▼
+                               │  ┌──────────────────────┐
+                               │  │    Admin Bot :9000   │
+                               │  │ Playwright / Chromium │
+                               │  └──────────────────────┘
+                               │
+                               ▼
+                       ┌──────────────────────┐
+                       │   data/vulnmart.db  │
+                       │       SQLite        │
+                       └──────────────────────┘
+```
+
+The admin bot and VulnMart share the Docker network `ctfd_default`.
+
+In production, the admin bot's port is intentionally **not exposed publicly**. It is only reachable from the internal Docker network.
+
+---
+
+## 🛠️ Tech Stack
+
+| Component          | Technology                        |
+| ------------------ | --------------------------------- |
+| Backend            | FastAPI                           |
+| ORM                | SQLAlchemy                        |
+| Database           | SQLite                            |
+| Templates          | Jinja2                            |
+| Browser automation | Playwright                        |
+| Browser            | Chromium                          |
+| Containerization   | Docker / Docker Compose           |
+| Authentication     | JWT + HttpOnly session cookie     |
+| Testing workflow   | Burp Suite / browser / HTTP tools |
+
+---
+
+## 📁 Project Structure
 
 ```text
 vulnmart/
 ├── app/
-│   ├── core/
-│   │   ├── dependencies.py
-│   │   └── security.py
-│   │
 │   ├── models/
-│   │   ├── cart_item.py
-│   │   ├── category.py
-│   │   ├── h5_challenge.py
-│   │   ├── order.py
-│   │   ├── order_item.py
-│   │   ├── password_reset.py
-│   │   ├── product.py
-│   │   ├── user.py
-│   │   └── wallet.py
-│   │
 │   ├── routes/
-│   │   ├── accounts.py
-│   │   ├── admin.py
-│   │   ├── auth.py
-│   │   ├── cart.py
-│   │   ├── checkout.py
-│   │   ├── crew.py
-│   │   ├── exchange.py
-│   │   ├── h5.py
-│   │   ├── orders.py
-│   │   ├── pages.py
-│   │   ├── password_reset.py
-│   │   ├── products.py
-│   │   ├── transactions.py
-│   │   ├── users.py
-│   │   └── wallet.py
-│   │
-│   ├── schemas/
-│   │   ├── auth.py
-│   │   ├── crew.py
-│   │   ├── password_reset.py
-│   │   └── user.py
-│   │
-│   ├── services/
 │   ├── database.py
 │   ├── database_seed.py
 │   └── main.py
 │
+├── admin-bot/
+│   ├── bot.py
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── requirements.txt
+│
 ├── data/
+│   └── vulnmart.db
+│
 ├── static/
-│   └── css/
-│       └── style.css
-│
 ├── templates/
-│   ├── admin.html
-│   ├── admin_user.html
-│   ├── base.html
-│   ├── cart.html
-│   ├── crew_dashboard.html
-│   ├── crew_login.html
-│   ├── crew_otp.html
-│   ├── crew_register.html
-│   ├── exchange.html
-│   ├── forgot_password.html
-│   ├── index.html
-│   ├── login.html
-│   ├── order.html
-│   ├── orders.html
-│   ├── product.html
-│   ├── profile.html
-│   ├── register.html
-│   └── reset_password.html
-│
 ├── Dockerfile
 ├── docker-compose.yml
-├── deploy.sh
 ├── requirements.txt
-└── .gitignore
+└── README.md
 ```
 
 ---
 
-## Installation
+## 🚀 Installation & Running the Lab
 
-### Prerequisites
+VulnMart and the Admin Bot are intentionally separated into two Docker Compose projects.
 
-Make sure the following tools are installed:
-
-* Git
-* Docker
-* Docker Compose
-
-Verify your installation:
+### 1️⃣ Start VulnMart
 
 ```bash
-git --version
-docker --version
-docker compose version
+cd /opt/vulnmart
+docker compose up -d
 ```
 
----
-
-## Running with Docker
-
-Clone the repository:
+Check:
 
 ```bash
-git clone https://github.com/yansyamahend/vulnmart.git
+docker ps --filter name=vulnmart
 ```
 
-Move into the project directory:
+### 2️⃣ Start the Admin Bot
 
 ```bash
-cd vulnmart
+cd /opt/vulnmart/admin-bot
+docker compose up -d
 ```
 
-Build and start the application:
+Check:
 
 ```bash
-docker compose up --build
+docker ps --filter name=vulnmart-admin-bot
 ```
 
-After the containers are running, access the application through the configured local port.
-
-To stop the application:
+<details>
+<summary><strong>▶ Start both services in one sequence</strong></summary>
 
 ```bash
+cd /opt/vulnmart
+docker compose up -d
+
+cd /opt/vulnmart/admin-bot
+docker compose up -d
+```
+
+</details>
+
+### 🌐 Access the Lab
+
+| Environment                       | URL                                  |
+| --------------------------------- | ------------------------------------ |
+| Local                             | `http://localhost:8000`              |
+| Production/private lab deployment | `https://vulnmart.rootacademy.my.id` |
+
+### ✅ Verify Startup
+
+VulnMart:
+
+```bash
+docker logs -f vulnmart
+```
+
+Admin Bot:
+
+```bash
+cd /opt/vulnmart/admin-bot
+docker logs -f vulnmart-admin-bot
+```
+
+A healthy Admin Bot startup should end with:
+
+```text
+[BOT] Admin login successful
+[BOT] Admin session verified
+[BOT] Admin bot ready
+[BOT] Review worker started
+```
+
+<details>
+<summary><strong>🛑 Stop the lab</strong></summary>
+
+```bash
+cd /opt/vulnmart
+docker compose down
+
+cd /opt/vulnmart/admin-bot
 docker compose down
 ```
 
-To run the application in detached mode:
+</details>
+
+<details>
+<summary><strong>🔨 Rebuild after code changes</strong></summary>
 
 ```bash
+cd /opt/vulnmart
+docker compose up -d --build
+
+cd /opt/vulnmart/admin-bot
 docker compose up -d --build
 ```
 
-To view running containers:
-
-```bash
-docker compose ps
-```
-
-To view application logs:
-
-```bash
-docker compose logs -f
-```
+</details>
 
 ---
 
-## Running Without Docker
+## 🧼 Fresh Database Reset
 
-VulnMart can also be run directly using Python.
-
-Create a virtual environment:
+Use this only when you want to completely reset the lab state and remove previous testing data.
 
 ```bash
-python3 -m venv .venv
+cd /opt/vulnmart
+
+docker compose down
+
+rm -f data/vulnmart.db
+
+docker compose up -d --build
+
+docker exec vulnmart python -m app.database_seed
 ```
 
-Activate the virtual environment:
-
-### Linux / WSL
+Then restart the Admin Bot:
 
 ```bash
-source .venv/bin/activate
+cd /opt/vulnmart/admin-bot
+
+docker compose down
+docker compose up -d
 ```
 
-### Windows
-
-```powershell
-.venv\Scripts\activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start the application using the appropriate application entry point.
+> **Note:** You do not need to run the seed every time you start the lab. Only run `database_seed.py` after intentionally removing the database or when creating a fresh lab state.
 
 ---
 
-## Security Testing
+## 🧑‍💻 Running Locally
 
-VulnMart can be tested using common web security testing tools.
+### 1. Start VulnMart
 
-Examples include:
+```bash
+cd vulnmart
+docker compose up -d --build
+```
 
-* Burp Suite
-* OWASP ZAP
-* Browser Developer Tools
-* cURL
-* HTTP clients
-* Custom scripts
-
-A typical testing workflow can be structured as:
+The application will be available at:
 
 ```text
-1. Reconnaissance
-2. Identify application functionality
-3. Map endpoints and parameters
-4. Understand authentication
-5. Understand authorization
-6. Test input handling
-7. Test business logic
-8. Analyze API behavior
-9. Validate vulnerabilities
-10. Assess impact
-11. Identify root cause
-12. Recommend remediation
+http://localhost:8000
 ```
 
-The objective is to understand the application's behavior rather than simply relying on automated scanners.
+### 2. Create a fresh database
+
+The seed script is intentionally standalone.
+
+```bash
+docker exec vulnmart python -m app.database_seed
+```
+
+A fresh seed creates the default demonstration users and marketplace data.
+
+### 3. Start the Admin Bot
+
+```bash
+cd vulnmart/admin-bot
+docker compose up -d --build
+```
+
+Check the logs:
+
+```bash
+docker logs -f vulnmart-admin-bot
+```
+
+A healthy startup should end with messages similar to:
+
+```text
+[BOT] Admin login successful
+[BOT] Admin session verified
+[BOT] Admin bot ready
+[BOT] Review worker started
+```
 
 ---
 
-## Reporting Vulnerabilities
+## 🔐 Environment Configuration
 
-When documenting a vulnerability found in VulnMart, a useful report structure is:
+The admin bot reads its runtime configuration from:
 
 ```text
-## Title
+admin-bot/.env
+```
+
+Example:
+
+```env
+APP_API_URL=http://vulnmart:8000
+APP_BROWSER_URL=http://vulnmart:8000
+
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<your-admin-password>
+
+BOT_TRIGGER_SECRET=<your-shared-secret>
+
+REVIEW_WAIT_SECONDS=5
+```
+
+### 🔒 Important
+
+Do **not** commit `admin-bot/.env` to Git.
+
+The repository should keep secrets in environment variables rather than hard-coding operational credentials into source files.
+
+<details>
+<summary><strong>✅ Suggested repository hygiene</strong></summary>
+
+```text
+admin-bot/
+├── .env              ← local secret configuration (do not commit)
+├── .env.example      ← safe template for the repository
+└── ...
+```
+
+</details>
+
+---
+
+## 🤖 Admin Review Flow
+
+When a user profile is updated, VulnMart can enqueue an admin review.
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant V as 🛒 VulnMart
+    participant Q as 📋 Review Queue
+    participant B as 🤖 Admin Bot
+    participant A as 👑 Admin Profile
+
+    U->>V: PUT /api/users/me
+    V->>Q: Queue review for user
+    Q->>B: POST /review?user_id=<id>
+    B->>V: Authenticate as admin
+    B->>A: Open requested profile
+    A-->>B: Render page content
+    Note over B,A: Browser-side challenge content may execute
+```
+
+Conceptually:
+
+```text
+User updates profile
+        │
+        ▼
+PUT /api/users/me
+        │
+        ▼
+VulnMart triggers review
+        │
+        ▼
+POST /review?user_id=<id>
+        │
+        ▼
+Admin Bot queue
+        │
+        ▼
+Playwright opens admin profile
+        │
+        ▼
+Browser executes page content
+```
+
+The review mechanism exists specifically to support controlled security-lab scenarios involving administrator interaction with user-controlled content.
+
+---
+
+## 🔄 Resetting the Lab
+
+For a completely clean training environment, remove the SQLite database and seed it again.
+
+```bash
+cd /opt/vulnmart
+
+docker compose down
+
+rm -f data/vulnmart.db
+
+docker compose up -d --build
+
+docker exec vulnmart python -m app.database_seed
+```
+
+Then restart the admin bot if necessary:
+
+```bash
+cd /opt/vulnmart/admin-bot
+
+docker compose down
+docker compose up -d
+```
+
+This is useful after repeated testing when you want to return the lab to a known baseline.
+
+---
+
+## 🔎 Testing Workflow
+
+VulnMart is intended to be approached as a black-box target.
+
+### 🧠 The methodology
+
+```mermaid
+flowchart LR
+    A[🔍 Recon] --> B[🗺️ Map endpoints]
+    B --> C[🔐 Understand auth/session]
+    C --> D[🎯 Identify inputs]
+    D --> E[🛡️ Test authorization]
+    E --> F[🧠 Test business logic]
+    F --> G[💥 Validate impact]
+    G --> H[📝 Document finding]
+    H --> I[🛠️ Propose remediation]
+```
+
+### Step-by-step
+
+| Step              | Goal                          | Typical questions                                           |
+| ----------------- | ----------------------------- | ----------------------------------------------------------- |
+| 1. Recon          | Understand the attack surface | What pages, endpoints, parameters and roles exist?          |
+| 2. Map flows      | Establish normal behavior     | What happens from login → action → response?                |
+| 3. Auth/session   | Understand trust              | Where is identity stored and how is it checked?             |
+| 4. Inputs         | Find attacker-controlled data | Which fields, IDs, URLs, headers or bodies can I influence? |
+| 5. Authorization  | Test boundaries               | Does the server verify ownership and role on every request? |
+| 6. Business logic | Test assumptions              | Can I change state, price, quantity, balance or sequence?   |
+| 7. Impact         | Confirm security significance | What can an attacker actually achieve?                      |
+| 8. Root cause     | Explain why                   | Which missing or incorrect control enables it?              |
+| 9. Remediation    | Fix the issue                 | What server-side defensive control should exist?            |
+
+### 🧰 Useful Tools
+
+- Burp Suite
+- Browser DevTools
+- `curl`
+- `ffuf`
+- `Nmap`
+- `httpx`
+- Custom Python scripts
+
+<details>
+<summary><strong>🧪 Example: request-analysis loop</strong></summary>
+
+```text
+1. Perform a legitimate action in the browser
+2. Capture the request in Burp Suite
+3. Identify identifiers and security-sensitive fields
+4. Replay the request
+5. Change one variable at a time
+6. Compare response + application state
+7. Decide whether the server enforced the intended rule
+```
+
+> The important part is controlled experimentation: change one assumption at a time so you know which input caused the behavior.
+
+</details>
+
+---
+
+## 📝 Reporting Findings
+
+For each vulnerability, document at least:
+
+### Description
+
+Explain what is happening and where the trust boundary is broken.
+
+### Proof of Concept
+
+Provide the minimum request / payload / sequence required to reproduce the issue.
+
+### Impact
+
+Explain what an attacker can actually achieve.
+
+### Root Cause
+
+Describe the application logic that makes the vulnerability possible.
+
+### Remediation
+
+Explain the appropriate defensive control.
+
+### 📄 Recommended Write-up Template
+
+<details>
+<summary><strong>Click to expand a reusable finding template</strong></summary>
+
+````markdown
+# [Vulnerability Title]
 
 ## Severity
 
-## Affected Component
+[Critical / High / Medium / Low / Informational]
+
+## Affected Endpoint / Feature
+
+`METHOD /endpoint`
 
 ## Description
 
+Explain what is vulnerable and what security boundary is broken.
+
 ## Steps to Reproduce
+
+1. Step one
+2. Step two
+3. Step three
 
 ## Proof of Concept
 
+```http
+POST /example HTTP/1.1
+Host: target.local
+Content-Type: application/json
+
+{"example":"value"}
+```
+````
+
 ## Impact
+
+Explain the realistic security impact.
 
 ## Root Cause
 
+Explain the vulnerable application logic.
+
 ## Remediation
+
+Explain the correct defensive control.
+
+````
+
+</details>
+
+### ✅ Reporting checklist
+
+- [ ] Clear title
+- [ ] Severity justified
+- [ ] Affected endpoint/feature identified
+- [ ] Reproduction is deterministic
+- [ ] PoC is minimal
+- [ ] Impact is explained in realistic terms
+- [ ] Root cause is tied to application behavior
+- [ ] Remediation is actionable
+
+---
+
+## ⚠️ Security Notice
+
+VulnMart is intentionally vulnerable.
+
+It should only be deployed in:
+
+- Local development environments
+- Isolated CTF infrastructure
+- Private training environments
+- Other systems where you have explicit authorization
+
+> 🚨 **Do not expose an unmodified VulnMart instance as a normal public production application.**
+
+---
+
+## 🎓 Educational Philosophy
+
+VulnMart is built around:
+
+> **LEARN → TEST → EXPLOIT → UNDERSTAND → FIX**
+
+A good lab solve should answer:
+
+1. What input can I control?
+2. Where does that input go?
+3. What does the server trust?
+4. What security control is missing or incorrectly implemented?
+5. What is the real security impact?
+6. How would I fix it?
+
+### 🧩 What "solved" means here
+
+<details>
+<summary><strong>Not just a flag</strong></summary>
+
+A challenge is truly understood when you can explain both sides:
+
+```text
+Attacker perspective                 Defender perspective
+────────────────────                 ────────────────────
+What can I control?          ↔       What should be trusted?
+What request can I alter?    ↔       What must be validated?
+What boundary can I cross?   ↔       What authorization is missing?
+What impact can I cause?     ↔       What control prevents it?
+````
+
+</details>
+
+---
+
+## 🌐 Deployment
+
+VulnMart can be containerized and placed behind a reverse proxy for a private training environment.
+
+For production-like lab deployments, keep the following separated:
+
+```text
+Internet
+   │
+   ▼
+Reverse Proxy
+   │
+   ▼
+VulnMart :8000
+   │
+   └────── internal Docker network ──────► Admin Bot :9000
 ```
 
-For example, a security report should explain not only **what request or payload works**, but also:
-
-* Why the request is accepted
-* Which security control is missing
-* What an attacker can achieve
-* What data or functionality is affected
-* How the underlying issue should be remediated
+The admin bot should remain an **internal service** and should not be directly exposed to the public Internet.
 
 ---
 
-## Intended Audience
+## 👤 Project
 
-VulnMart is intended for:
+### VulnMart
 
-* Cybersecurity beginners
-* Web security learners
-* Penetration testing students
-* CTF players
-* Application security enthusiasts
-* Security researchers
-* Developers learning secure coding
+**An educational vulnerable marketplace for Web Pentest, AppSec, and CTF practice.**
 
-The application can be especially useful for learners who want to move from theoretical vulnerability descriptions toward practical application security testing.
+Built for hands-on security experimentation and black-box vulnerability research.
 
----
-
-## Disclaimer
-
-VulnMart is **intentionally vulnerable** and is created exclusively for educational and security testing purposes.
-
-Do **not** deploy VulnMart in a production environment.
-
-Do **not** expose a vulnerable instance to the public internet unless it has been properly isolated and secured for the intended use.
-
-Only perform security testing against systems and applications that you own or have explicit permission to test.
-
-The author is not responsible for damage, data loss, service disruption, or unauthorized access resulting from misuse of this project.
-
----
-
-## Contributing
-
-Contributions, improvements, and security research are welcome.
-
-When contributing, please consider:
-
-* Keep the project focused on web application security education.
-* Avoid introducing unnecessary dependencies.
-* Document significant changes.
-* Clearly explain security-relevant behavior.
-* Do not expose sensitive information or real credentials.
-* Test changes before submitting them.
-
-For vulnerability research, please clearly document the affected functionality and expected security impact.
-
----
-
-## Roadmap
-
-Potential future improvements include:
-
-* Additional vulnerable application scenarios
-* More realistic e-commerce workflows
-* Expanded API attack surface
-* Additional authentication and authorization scenarios
-* Improved documentation
-* Structured security challenges
-* Official vulnerability writeups
-* Difficulty classification for vulnerabilities
-* Additional deployment options
-
----
-
-## Project Status
-
-VulnMart is an educational project under active development.
-
-Features, application behavior, and security scenarios may change over time.
-
----
-
-## License
-
-This project is intended for educational and security research purposes.
-
-See the repository license for the applicable terms.
-
----
-
-## Author
-
-Created by **Aryansyah Mahendra**.
-
-GitHub:
-
-https://github.com/yansyamahend
-
-Project:
-
-https://github.com/yansyamahend/vulnmart
+<p align="center">
+  <sub>🧪 Learn by testing · 🔍 Understand the root cause · 🛠️ Think like a defender</sub>
+</p>
