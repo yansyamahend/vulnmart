@@ -20,7 +20,7 @@ try:
     admin = User(
         username="admin",
         email="admin@vulnmart.local",
-        password="AdminPass123!",
+        password="admin_dummy",
         full_name="VulnMart Administrator",
         role="admin",
         bio="Official VulnMart administrator.",
