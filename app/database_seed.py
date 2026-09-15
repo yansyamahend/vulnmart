@@ -198,7 +198,7 @@ try:
         currency="IDR",
         status="completed",
         reference_code="VM-SECRET-8472",
-        description="flag{4nj1rr_k3n4_!int1p_gu44_318319}",
+        description="flag{dummy4}",
     )
 
     db.add(victim_order)

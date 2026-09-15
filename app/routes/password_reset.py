@@ -26,7 +26,7 @@ TARGET_USERNAME = os.getenv(
 
 H5_FLAG = os.getenv(
     "H5_FLAG",
-    "flag{vulnmart_legacy_api_reset_583721}",
+    "flag{dummy3}",
 )
 
 

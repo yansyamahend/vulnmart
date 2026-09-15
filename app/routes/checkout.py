@@ -132,12 +132,12 @@ def checkout(
 
     if contains_global_x:
         challenge_flag = (
-            "flag{4nda_t3rdeteks1_D3s1L_10_72813}"
+            "flag{dummy_1}"
         )
 
     elif contains_ultrabook:
         challenge_flag = (
-            "flag{!ni_$truk_ny4_tu4n_37183917}"
+            "flag{dummy_2}"
         )
 
     # ========================================================
